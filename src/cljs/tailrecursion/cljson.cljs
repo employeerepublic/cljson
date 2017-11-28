@@ -69,7 +69,7 @@
     (case tag
       "v" (loop [i 1, len (alength o), out (transient [])]
             (if (< i len)
-              (recur (inc i) len (conj! out (decode (aget o i)))) 
+              (recur (inc i) len (conj! out (decode (aget o i))))
               (persistent! out)))
       "m" (loop [i 1, len (alength o), out (transient {})]
             (if (< i len)
@@ -88,6 +88,8 @@
               (symbol val)
               (symbol (.slice val 0 idx) (.slice val (inc idx)))))
       "z" (let [m (decode (aget o 1)), v (decode (aget o 2))] (with-meta v m))
+      "uuid" (uuid (aget o 1))
+      "inst" (js/Date. (aget o 1))
       (if-let [reader (or (get @*tag-table* tag) @*default-data-reader-fn*)]
         (reader (decode (aget o 1)))
         (throw (js/Error. (str "No reader function for tag '" tag "'.")))))))
